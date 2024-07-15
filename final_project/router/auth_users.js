@@ -57,21 +57,17 @@ regd_users.put("/auth/review/:isbn", (req, res) => {
   const isbn = req.params.isbn
   const book = books[isbn]
 
-  console.log(isbn)
-
   if(book) {
 
     let review = req.body.review
     let username = req.session.authorization.username
     let bookReviews = books[isbn].reviews
 
-    if(bookReviews.hasOwnPropery(username)) {
+    if(bookReviews.hasOwnProperty(username)) {
 
         bookReviews[username] = review
-        res.send(`Review with the username ${username} updated.`)
     } else {
         bookReviews[username] = review
-        res.send(`Review with the username ${username} added.`)
     }
 
     res.send(JSON.stringify(bookReviews, null, 4))
@@ -79,6 +75,28 @@ regd_users.put("/auth/review/:isbn", (req, res) => {
 
     return res.status(404).json({error: "Book not found"})
   }
+});
+
+regd_users.delete("/auth/review/:isbn", (req, res) => {
+
+    const isbn = req.params.isbn
+    const book = books[isbn]
+
+    if(book) {
+
+        let username = req.session.authorization.username
+        let userReview = book.reviews[username]
+        if(userReview) {
+
+            delete(book.reviews[username])
+            res.send(book.reviews, null, 4)
+
+        } else {
+            res.send("User did not leave a review yet")
+        }
+    } else {
+        res.send("Book did not exist")
+    }
 });
 
 module.exports.authenticated = regd_users;
